@@ -87,21 +87,22 @@ public class Map {
 	public void draw(Graphics g) {
 		for(Area[] areaRow: areas){
 			for(Area area: areaRow){
-				switch (area.getAreaVisible()) {
-				case VISIBLE:
-					g.drawImage(imageManager.getAreaImage(area.getImageNo()), area.getX(), area.getY(), null);
-					break;
-				case NOT_VISIBLE:
-					g.drawImage(imageManager.getAreaImage(area.getImageNo()), area.getX(), area.getY(), null);
-					g.setColor(imageManager.getNotVisible());
-					g.fillRect(area.getX(), area.getY(), 30, 30);
-					break;
-				case NOT_VISITED:
-					g.drawImage(imageManager.getAreaImage(5), area.getX(), area.getY(), null);
-					break;
-				default:
-					break;
-				}
+//				switch (area.getAreaVisible()) {
+//				case VISIBLE:
+//					g.drawImage(imageManager.getAreaImage(area.getImageNo()), area.getX(), area.getY(), null);
+//					break;
+//				case NOT_VISIBLE:
+//					g.drawImage(imageManager.getAreaImage(area.getImageNo()), area.getX(), area.getY(), null);
+//					g.setColor(imageManager.getNotVisible());
+//					g.fillRect(area.getX(), area.getY(), 30, 30);
+//					break;
+//				case NOT_VISITED:
+//					g.drawImage(imageManager.getAreaImage(5), area.getX(), area.getY(), null);
+//					break;
+//				default:
+//					break;
+//				}
+				g.drawImage(imageManager.getAreaImage(area.getImageNo()), area.getX(), area.getY(), null);
 				
 				if(area.isHighlight()){
 					g.setColor(Color.WHITE);

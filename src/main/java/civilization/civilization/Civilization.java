@@ -68,16 +68,16 @@ public class Civilization {
 	}
 	
 	public void update(){
-		setNotVisible();
+//		setNotVisible();
 		people.forEach(Human::update);
-		updateVisible();
+//		updateVisible();
 	}
 	
-	private void setNotVisible(){
-		people.forEach(x->x.getArea().setAreaVisible(AreaVisible.NOT_VISIBLE));
-	}
-	
-	private void updateVisible(){
-		people.forEach(x->x.getArea().setAreaVisible(AreaVisible.VISIBLE));
-	}
+//	private void setNotVisible(){
+//		people.forEach(x->x.getArea().setAreaVisible(AreaVisible.NOT_VISIBLE));
+//	}
+//	
+//	private void updateVisible(){
+//		people.forEach(x->x.getArea().setAreaVisible(AreaVisible.VISIBLE));
+//	}
 }

@@ -70,7 +70,7 @@ public class JsonService {
 		area.setCost(cost);
 		area.setImageNo(imageUrl);
 		area.setAvailableNeighbors(availableNeighbors);
-		area.setAreaVisible(AreaVisible.NOT_VISITED);
+//		area.setAreaVisible(AreaVisible.NOT_VISITED);
 		return area;
 	}
 
