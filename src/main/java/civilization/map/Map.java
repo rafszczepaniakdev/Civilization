@@ -108,6 +108,11 @@ public class Map {
 					g.setColor(Color.WHITE);
 		    		g.drawRect(area.getX()+1, area.getY()+1, 28, 28);
 				}
+				
+				if(area.getFood()!=null){
+					g.setColor(Color.BLACK);
+					g.fillRect(area.getX()+7, area.getY()+7, 15, 15);
+				}
 			}
 		}
 	}

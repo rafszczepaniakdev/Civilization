@@ -17,6 +17,7 @@ public class Area {
 	private BuildingType buildingType;
 	private AStarState state;
 	private AreaVisible areaVisible;
+	private Food food;
 
 	public int getX() {
 		return x;
@@ -112,7 +113,13 @@ public class Area {
 	public void setAreaVisible(AreaVisible areaVisible) {
 		this.areaVisible = areaVisible;
 	}
-	
-	
 
+	public Food getFood() {
+		return food;
+	}
+
+	public void setFood(Food food) {
+		this.food = food;
+	}
+	
 }

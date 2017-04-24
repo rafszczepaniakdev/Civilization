@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -12,6 +13,7 @@ import org.json.simple.parser.ParseException;
 
 import civilization.map.Area;
 import civilization.map.AreaVisible;
+import civilization.map.Food;
 
 public class JsonService {
 	private static JsonService instance;
@@ -70,6 +72,11 @@ public class JsonService {
 		area.setCost(cost);
 		area.setImageNo(imageUrl);
 		area.setAvailableNeighbors(availableNeighbors);
+		Random rand = new Random();
+		if(rand.nextInt(100)<=8 && area.getCost()>0){
+			Food food = new Food();
+			area.setFood(food);
+		}
 //		area.setAreaVisible(AreaVisible.NOT_VISITED);
 		return area;
 	}

@@ -2,7 +2,11 @@ package civilization.civilization;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import civilization.human.Human;
@@ -11,11 +15,11 @@ import civilization.map.AreaVisible;
 
 public class Civilization {
 	private City city;
-	private Set<Human> people;
+	private List<Human> people;
 	
 	public Civilization(){
 		city = City.getInstance();
-		people = new HashSet<Human>();
+		people = new ArrayList<Human>();
 	}
 	
 	public City getCity() {
@@ -26,11 +30,11 @@ public class Civilization {
 		this.city = city;
 	}
 
-	public Set<Human> getPeople() {
+	public List<Human> getPeople() {
 		return people;
 	}
 
-	public void setPeople(Set<Human> people) {
+	public void setPeople(List<Human> people) {
 		this.people = people;
 	}
 	
@@ -48,8 +52,10 @@ public class Civilization {
 		g.setColor(Color.GRAY);
 		g.fillRect(0, 0, 150, 600);
 		
+		int y = 100;
 		for(Human ob: people){
-			ob.drawAtPanel(g);
+			ob.drawAtPanel(g,y);
+			y+=30*ob.getId();
 		}
 	}
 	

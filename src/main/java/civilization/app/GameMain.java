@@ -21,6 +21,7 @@ import javax.swing.SwingUtilities;
 import civilization.astar.AStar;
 import civilization.civilization.Civilization;
 import civilization.human.Human;
+import civilization.human.HumanAction;
 import civilization.human.Scout;
 import civilization.map.Area;
 import civilization.map.Map;
@@ -47,6 +48,7 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 	private Map map;
 	private Civilization civilization;
 	private AStar aStar;
+	private int humanId;
 
 	public GameMain() {
 		super();
@@ -67,6 +69,7 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 		map = Map.getInstance();
 		civilization = new Civilization();
 		aStar = AStar.getInstance();
+		humanId = 1;
 		centerMap();
 		createPeople();
 		this.addMouseListener(this);
@@ -185,68 +188,55 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 			Area[][] areas = map.getAreas();
 			for (Area[] areaRow : areas) {
 				for (Area area : areaRow) {
-					if(area.getX() < mx && area.getX() + 30 > mx
-								&& area.getY() < my && area.getY() + 30 > my){
+					if (area.getX() < mx && area.getX() + 30 > mx && area.getY() < my && area.getY() + 30 > my) {
 						clickedArea = area;
 						break;
 					}
 				}
 			}
-			if(clickedArea.getCost()>0){
-				List<Human> activeHumanList = civilization.getPeople().stream().filter(x -> x.isActive()).collect(Collectors.toList());
-				if (activeHumanList != null && activeHumanList.size()>0) {
+			if (clickedArea!=null && clickedArea.getCost() > 0) {
+				List<Human> activeHumanList = civilization.getPeople().stream().filter(x -> x.isActive())
+						.collect(Collectors.toList());
+				if (activeHumanList != null && activeHumanList.size() > 0) {
 					Human activeHuman = activeHumanList.get(0);
-					
-					if(activeHuman.getArea().equals(clickedArea)){
+
+					if (activeHuman.getArea().equals(clickedArea)) {
 						activeHuman.setActive(false);
-					}else{
+					} else {
 						activeHuman.setPath(aStar.generatePath(activeHuman.getArea(), clickedArea));
-						System.out.println(activeHuman.getPath());
+						activeHuman.setAction(HumanAction.GO);
 						activeHuman.setActive(false);
 					}
 				} else {
-					List<Human> toActive = civilization.getPeople()
-							.stream().filter(x -> x.getArea().getX() < mx && x.getArea().getX() + 30 > mx
-									&& x.getArea().getY() < my && x.getArea().getY() + 30 > my).collect(Collectors.toList());
-					if(toActive!=null && toActive.size()>0){
+					List<Human> toActive = civilization.getPeople().stream()
+							.filter(x -> x.getArea().getX() < mx && x.getArea().getX() + 30 > mx
+									&& x.getArea().getY() < my && x.getArea().getY() + 30 > my)
+							.collect(Collectors.toList());
+					if (toActive != null && toActive.size() > 0) {
 						toActive.get(0).setActive(true);
 					}
 				}
 			}
+		} else if (mx <= 150 && my >= 100) {
+			int index = (my - 100) / 30 + 1;
+			List<Human> human = civilization.getPeople().stream().filter(x -> x.getId() == index)
+					.collect(Collectors.toList());
+			List<Human> active = civilization.getPeople().stream().filter(x -> x.isActive())
+					.collect(Collectors.toList());
+			if (!human.isEmpty()) {
+				if (!active.isEmpty()) {
+					if (human.get(0).equals(active.get(0))) {
+						human.get(0).setActive(true);
+					} else {
+						active.get(0).setActive(false);
+						human.get(0).setActive(true);
+					}
+				} else {
+					human.get(0).setActive(true);
+				}
+			}
+
 		}
-
-//		List<Human> humanSelected = civilization.getPeople().stream().filter(x -> x.isActive())
-//				.collect(Collectors.toList());
-//		if (humanSelected != null && !humanSelected.isEmpty()) {
-//			Human human = humanSelected.get(0);
-//			Area area = null;
-//			Area[][] areas = map.getAreas();
-//			for (Area[] areaRow : areas) {
-//				for (Area areaCol : areaRow) {
-//					if ((areaCol.getX() < mx && areaCol.getX() + 30 > mx)
-//							&& (areaCol.getY() < my && areaCol.getY() + 30 > my) && areaCol.getCost() > 0) {
-//						area = areaCol;
-//						break;
-//					}
-//				}
-//			}
-//			if (area != null) {
-//				human.setPath(aStar.generatePath(human.getArea(), area));
-//				System.out.println(human.getPath());
-//				human.setActive(false);
-//			} else {
-//				human.setActive(true);
-//			}
-//		}
-//
-//		List<Human> toSelect = civilization.getPeople().stream().filter(x -> {
-//			Area area = x.getArea();
-//			return area.getX() < mx && area.getX() + 30 > mx;
-//		}).collect(Collectors.toList());
-//
-//		if (toSelect != null && !toSelect.isEmpty())
-//			toSelect.get(0).setActive(true);
-
 	}
 
 	public void mouseEntered(MouseEvent arg0) {
@@ -300,7 +290,8 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 	}
 
 	private void createPeople() {
-		civilization.addHuman(new Scout(map.getBuildings().entrySet().iterator().next().getKey()));
+		civilization.addHuman(new Scout(map.getBuildings().entrySet().iterator().next().getKey(), humanId++));
+		civilization.addHuman(new Scout(map.getBuildings().entrySet().iterator().next().getKey(), humanId++));
 	}
 
 }
