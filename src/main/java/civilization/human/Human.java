@@ -24,6 +24,8 @@ public abstract class Human {
 	protected HumanAction action;
 	protected City city;
 	
+	private int liveTimer;
+	
 	protected Color darkRed = new Color(148,24,24,255);
 	protected Color red = new Color(255,0,0,255);
 	protected Color darkYellow = new Color(162,107,2,255);
@@ -39,6 +41,7 @@ public abstract class Human {
 		actionTimer=0;
 		action = HumanAction.NONE;
 		city = City.getInstance();
+		liveTimer = 0;
 	}
 	
 	public void drawAtPanel(Graphics g, int y) {
@@ -148,6 +151,7 @@ public abstract class Human {
 	}
 	
 	public void update(){
+		live();
 		switch (action) {
 		case GO:
 			if(!path.isEmpty()){
@@ -176,6 +180,7 @@ public abstract class Human {
 		if(area.getBuildingType()!=null && area.getBuildingType().equals(BuildingType.WAREHOUSE)){
 			city.setFood(city.getFood()+capacity);
 			capacity=0;
+			eat();
 			return;
 		}
 	}
@@ -183,4 +188,41 @@ public abstract class Human {
 	public void collectFood(){
 	}
 	
+	private void live(){
+		if(liveTimer>50){
+			if(stomach>0){
+				stomach-=1;
+				liveTimer = 0;
+			}else{
+				stomach = 0;
+				hp -= 2;
+				liveTimer = 0;
+			}
+		}else{
+			liveTimer++;
+		}
+	}
+	
+	private void eat(){
+		if(stomach<100){
+			if(actionTimer>50){
+				int cityCap = city.getFood();
+				if(cityCap>5){
+					if(stomach+5>100){
+						stomach=100;
+					}else{
+						stomach+=5;
+					}
+					cityCap-=2;
+					city.setFood(cityCap);
+				}else{
+					stomach+=cityCap;
+					city.setFood(0);
+				}
+				actionTimer=0;
+			}else{
+				actionTimer++;
+			}
+		}
+	}
 }

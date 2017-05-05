@@ -76,6 +76,7 @@ public class Civilization {
 	public void update(){
 //		setNotVisible();
 		people.forEach(Human::update);
+		people.removeIf(x->x.getHp()<=0);
 //		updateVisible();
 	}
 	
