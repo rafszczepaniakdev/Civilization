@@ -70,8 +70,8 @@ public class Map {
 			}
 		}
 		
-		int xCity = rand.nextInt(WIDTH - 10);
-		int yCity = rand.nextInt(HEIGHT - 10);
+		int xCity = rand.nextInt(WIDTH - 20);
+		int yCity = rand.nextInt(HEIGHT - 20);
 		prepareBuildingsMap(xCity, yCity);
 	}
 	
