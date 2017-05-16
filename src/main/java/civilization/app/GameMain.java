@@ -3,14 +3,18 @@ package civilization.app;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.RenderingHints;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.awt.peer.KeyboardFocusManagerPeer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,13 +24,14 @@ import javax.swing.SwingUtilities;
 
 import civilization.astar.AStar;
 import civilization.civilization.Civilization;
+import civilization.civilization.building.BuildingType;
 import civilization.human.Human;
 import civilization.human.HumanAction;
 import civilization.human.Scout;
 import civilization.map.Area;
 import civilization.map.Map;
 
-public class GameMain extends JPanel implements Runnable, MouseListener, MouseMotionListener {
+public class GameMain extends JPanel implements Runnable, MouseListener, MouseMotionListener, KeyListener {
 
 	/**
 	 * 
@@ -49,6 +54,10 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 	private Civilization civilization;
 	private AStar aStar;
 	private int humanId;
+	private boolean buildingState;
+	private boolean createHuman;
+	private Font standardFont;
+	private Font bigFont;
 
 	public GameMain() {
 		super();
@@ -70,10 +79,15 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 		civilization = new Civilization();
 		aStar = AStar.getInstance();
 		humanId = 1;
+		buildingState=false;
+		createHuman=false;
+		standardFont = g.getFont();
+		bigFont = new Font("TimesRoman", Font.PLAIN, 20); 
 		centerMap();
 		createPeople();
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
+		this.addKeyListener(this);
 	}
 
 	public void run() {
@@ -127,6 +141,16 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 	private synchronized void gameRender() {
 		map.draw(g);
 		civilization.draw(g);
+		if(buildingState){
+			g.setFont(bigFont);
+			g.drawString("Building...", 10, 20);
+			g.setFont(standardFont);
+		}
+		if(createHuman){
+			g.setFont(bigFont);
+			g.drawString("Giving birth...", 10, 20);
+			g.setFont(standardFont);
+		}
 	}
 
 	public void mouseDragged(MouseEvent ev) {
@@ -163,6 +187,19 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 	}
 
 	public void mouseMoved(MouseEvent ev) {
+		if(buildingState){
+			mouseMoveBuilding(ev);
+		}else{
+			if(createHuman){
+				mouseMoveCreateHuman(ev);
+			}else{
+				mouseMoveHuman(ev);
+			}
+			
+		}
+	}
+	
+	private void mouseMoveHuman(MouseEvent ev){
 		Area[][] areas = map.getAreas();
 		for (Area[] areaRow : areas) {
 			for (Area ar : areaRow) {
@@ -178,11 +215,60 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 		if (indX >= 0 && indY >= 0)
 			map.getAreas()[indX][indY].setHighlight(true);
 	}
+	
+	private void mouseMoveCreateHuman(MouseEvent ev){
+		Area[][] areas = map.getAreas();
+		for (Area[] areaRow : areas) {
+			for (Area ar : areaRow) {
+				if (ar.isHiglightCreateHuman()) {
+					ar.setHiglightCreateHuman(false);
+					break;
+				}
+			}
+		}
+		Area area = map.getAreas()[0][0];
+		int indX = (Math.abs(area.getX() - 150) + ev.getX() - 150) / 30;
+		int indY = (Math.abs(area.getY() - 30) + ev.getY() - 30) / 30;
+		if (indX >= 0 && indY >= 0 && map.getAreas()[indX][indY].getBuildingType()!=null && map.getAreas()[indX][indY].getBuildingType().equals(BuildingType.WAREHOUSE))
+			map.getAreas()[indX][indY].setHiglightCreateHuman(true);
+	}
+	
+	private void mouseMoveBuilding(MouseEvent ev){
+		Area[][] areas = map.getAreas();
+		for (Area[] areaRow : areas) {
+			for (Area ar : areaRow) {
+				if (!ar.getHiglightBuilding().equals(BuildingType.NONE)) {
+					ar.setHiglightBuilding(BuildingType.NONE);
+					break;
+				}
+			}
+		}
+		Area area = map.getAreas()[0][0];
+		int indX = (Math.abs(area.getX() - 150) + ev.getX() - 150) / 30;
+		int indY = (Math.abs(area.getY() - 30) + ev.getY() - 30) / 30;
+		if (indX >= 0 && indY >= 0 && map.getAreas()[indX][indY].getCost()>=0){
+			map.getAreas()[indX][indY].setHiglightBuilding(BuildingType.WAREHOUSE);
+		}
+			
+	}
 
 	public void mouseClicked(MouseEvent ev) {
 		int mx = ev.getX();
 		int my = ev.getY();
 
+		if(buildingState){
+			buildClick(mx,my);
+		}else{
+			if(createHuman){
+				createHuman(mx,my);
+			}else{
+				humanClick(mx,my);
+			}
+		}
+		
+	}
+	
+	private void humanClick(int mx, int my){
 		if (mx > 150 && my > 30) {
 			Area clickedArea = null;
 			Area[][] areas = map.getAreas();
@@ -238,6 +324,54 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 
 		}
 	}
+	
+	private void createHuman(int mx, int my){
+		if (mx > 150 && my > 30) {
+			Area clickedArea = null;
+			Area[][] areas = map.getAreas();
+			for (Area[] areaRow : areas) {
+				for (Area area : areaRow) {
+					if (area.getX() < mx && area.getX() + 30 > mx && area.getY() < my && area.getY() + 30 > my) {
+						clickedArea = area;
+						break;
+					}
+				}
+			}
+			if (clickedArea!=null && map.getBuildings().get(clickedArea)!=null && map.getBuildings().get(clickedArea).getType().equals(BuildingType.WAREHOUSE)) {
+				int foodCap = civilization.getCity().getFood();
+				if(foodCap>=100 && civilization.getPeople().size()<17){
+					civilization.getCity().setFood(foodCap-100);
+					civilization.addHuman(new Scout(clickedArea, humanId++));
+					clickedArea.setHiglightCreateHuman(false);
+					createHuman=false;
+				}else{
+					createHuman=false;
+				}
+			}
+		} 
+	}
+	
+	private void buildClick(int mx, int my){
+		if (mx > 150 && my > 30) {
+			Area clickedArea = null;
+			Area[][] areas = map.getAreas();
+			for (Area[] areaRow : areas) {
+				for (Area area : areaRow) {
+					if (area.getX() < mx && area.getX() + 30 > mx && area.getY() < my && area.getY() + 30 > my) {
+						clickedArea = area;
+						break;
+					}
+				}
+			}
+			if (clickedArea!=null && clickedArea.getCost()>=0 && map.getBuildings().get(clickedArea)==null) {
+				map.addNewBuilding(clickedArea, BuildingType.WAREHOUSE);
+				int woodCap = civilization.getCity().getWood()-200;
+				civilization.getCity().setWood(woodCap);
+				clickedArea.setHiglightBuilding(BuildingType.NONE);
+				buildingState=false;
+			}
+		} 
+	}
 
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
@@ -292,6 +426,84 @@ public class GameMain extends JPanel implements Runnable, MouseListener, MouseMo
 	private void createPeople() {
 		civilization.addHuman(new Scout(map.getBuildings().entrySet().iterator().next().getKey(), humanId++));
 		civilization.addHuman(new Scout(map.getBuildings().entrySet().iterator().next().getKey(), humanId++));
+	}
+
+	@Override
+	public void keyPressed(KeyEvent ev) {
+		switch(ev.getKeyCode()){
+		case KeyEvent.VK_SPACE:
+			int foodCap = civilization.getCity().getFood();
+			if(foodCap>=100){
+				createHuman=true;
+				buildingState=false;
+				Area[][] areas = map.getAreas();
+				for (Area[] areaRow : areas) {
+					for (Area ar : areaRow) {
+						if (ar.isHighlight()) {
+							ar.setHighlight(false);
+						}
+						if (!ar.getHiglightBuilding().equals(BuildingType.NONE)) {
+							ar.setHiglightBuilding(BuildingType.NONE);
+						}
+						if (ar.isHiglightCreateHuman()) {
+							ar.setHiglightCreateHuman(false);
+						}
+					}
+				}
+			}
+			break;
+		case KeyEvent.VK_B:
+			int woodCap = civilization.getCity().getWood();
+			if(woodCap>=200){
+				buildingState=true;
+				createHuman=false;
+				Area[][] areas = map.getAreas();
+				for (Area[] areaRow : areas) {
+					for (Area ar : areaRow) {
+						if (ar.isHighlight()) {
+							ar.setHighlight(false);
+						}
+						if (!ar.getHiglightBuilding().equals(BuildingType.NONE)) {
+							ar.setHiglightBuilding(BuildingType.NONE);
+						}
+						if (ar.isHiglightCreateHuman()) {
+							ar.setHiglightCreateHuman(false);
+						}
+					}
+				}
+			}
+			break;
+		case KeyEvent.VK_ESCAPE:
+			buildingState=false;
+			createHuman=false;
+			Area[][] areas = map.getAreas();
+			for (Area[] areaRow : areas) {
+				for (Area ar : areaRow) {
+					if (ar.isHighlight()) {
+						ar.setHighlight(false);
+					}
+					if (!ar.getHiglightBuilding().equals(BuildingType.NONE)) {
+						ar.setHiglightBuilding(BuildingType.NONE);
+					}
+					if (ar.isHiglightCreateHuman()) {
+						ar.setHiglightCreateHuman(false);
+					}
+				}
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent ev) {
+		
+		
 	}
 
 }

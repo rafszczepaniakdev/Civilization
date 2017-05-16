@@ -11,6 +11,7 @@ import civilization.civilization.building.BuildingType;
 import civilization.civilization.building.Warehouse;
 import civilization.image.ImageManager;
 import civilization.json.JsonService;
+import civilization.sprite.Frame;
 
 public class Map {
 	private static Map instance;
@@ -81,6 +82,7 @@ public class Map {
 		Area area = areas[x][y];
 		area.setBuildingType(BuildingType.WAREHOUSE);
 		area.setCost(1);
+		area.setFood(null);
 		this.buildings.put(area, warehouse);
 	}
 
@@ -105,13 +107,35 @@ public class Map {
 				g.drawImage(imageManager.getAreaImage(area.getImageNo()), area.getX(), area.getY(), null);
 				
 				if(area.isHighlight()){
+					g.setColor(Color.BLACK);
+					g.drawRect(area.getX()+1, area.getY()+1, 28, 28);
 					g.setColor(Color.WHITE);
-		    		g.drawRect(area.getX()+1, area.getY()+1, 28, 28);
+		    		g.drawRect(area.getX()+2, area.getY()+2, 26, 26);
+		    		g.setColor(Color.BLACK);
+					g.drawRect(area.getX()+3, area.getY()+3, 24, 24);
 				}
 				
 				if(area.getFood()!=null){
-					g.setColor(Color.BLACK);
-					g.fillRect(area.getX()+7, area.getY()+7, 15, 15);
+					g.drawImage(imageManager.getFruit(), area.getX()+7, area.getY()+5, null);
+				}else{
+					if(area.getWood()!=null){
+						g.drawImage(imageManager.getWood(), area.getX()-2, area.getY()-3, null);
+					}
+				}
+				
+				if(!area.getHiglightBuilding().equals(BuildingType.NONE)){
+					g.drawImage(imageManager.getBuilding1(), area.getX(), area.getY(), null);
+				}
+				
+				if(area.isHiglightCreateHuman()){
+					int xFrom = 196;
+					int yFrom = 129;
+					int xTo = 221;
+					int yTo = 160;
+					int width = xTo - xFrom;
+					int height = yTo - yFrom;
+					g.drawImage(imageManager.getSprite(), area.getX() - width / 2 +15, area.getY() - height / 2 +10,
+							area.getX() + width / 2 +15, area.getY() + height / 2 +10, xFrom, yFrom, xTo, yTo, null);
 				}
 			}
 		}
@@ -139,6 +163,14 @@ public class Map {
 
 	public void setBuildings(java.util.Map<Area, Building> buildings) {
 		this.buildings = buildings;
+	}
+	
+	public void addNewBuilding(Area area, BuildingType buildingType){
+		area.setBuildingType(buildingType);
+		area.setCost(1);
+		area.setFood(null);
+		area.setWood(null);
+		this.buildings.put(area, new Warehouse());
 	}
 	
 }

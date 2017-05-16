@@ -1,10 +1,8 @@
 package civilization.map;
 
-public class Food extends Material{
-	
-	public Food() {
+public class Wood extends Material {
+	public Wood() {
 		super();
 		this.capacity=100;
 	}
-	
 }

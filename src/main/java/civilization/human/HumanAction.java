@@ -1,5 +1,5 @@
 package civilization.human;
 
 public enum HumanAction {
-	NONE, GO, COLLECT
+	NONE, GO, COLLECT_FOOD, COLLECT_WOOD
 }

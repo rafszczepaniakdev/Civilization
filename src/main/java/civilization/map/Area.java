@@ -18,6 +18,9 @@ public class Area {
 	private AStarState state;
 	private AreaVisible areaVisible;
 	private Food food;
+	private BuildingType higlightBuilding;
+	private boolean highlightCreateHuman;
+	private Wood wood;
 
 	public int getX() {
 		return x;
@@ -121,5 +124,29 @@ public class Area {
 	public void setFood(Food food) {
 		this.food = food;
 	}
-	
+
+	public BuildingType getHiglightBuilding() {
+		return higlightBuilding;
+	}
+
+	public void setHiglightBuilding(BuildingType higlightBuilding) {
+		this.higlightBuilding = higlightBuilding;
+	}
+
+	public Wood getWood() {
+		return wood;
+	}
+
+	public void setWood(Wood wood) {
+		this.wood = wood;
+	}
+
+	public boolean isHiglightCreateHuman() {
+		return highlightCreateHuman;
+	}
+
+	public void setHiglightCreateHuman(boolean higlightCreateHuman) {
+		this.highlightCreateHuman = higlightCreateHuman;
+	}
+
 }

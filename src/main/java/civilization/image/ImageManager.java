@@ -12,6 +12,11 @@ public class ImageManager {
 	private Image area3;
 	private Image area4;
 	private Image area5;
+	private Image fruit;
+	private Image wood;
+	private Image sprite;
+	private Image tombstone;
+	private Image panel;
 
 	private Color notVisible = new Color(166, 166, 166, 220);
 	
@@ -25,8 +30,13 @@ public class ImageManager {
 		area3 = Toolkit.getDefaultToolkit().getImage("src/images/3.png");
 		area4 = Toolkit.getDefaultToolkit().getImage("src/images/4.png");
 		area5 = Toolkit.getDefaultToolkit().getImage("src/images/5.png");
+		fruit = Toolkit.getDefaultToolkit().getImage("src/images/fruit.png");
+		wood = Toolkit.getDefaultToolkit().getImage("src/images/wood.png");
+		sprite = Toolkit.getDefaultToolkit().getImage("src/images/sprite.png");
+		tombstone = Toolkit.getDefaultToolkit().getImage("src/images/tombstone.png");
+		panel = Toolkit.getDefaultToolkit().getImage("src/images/panel.png");
 		
-		building1 = Toolkit.getDefaultToolkit().getImage("src/images/200.png");
+		building1 = Toolkit.getDefaultToolkit().getImage("src/images/city.png");
 	}
 
 	public static synchronized ImageManager getInstance() {
@@ -59,6 +69,29 @@ public class ImageManager {
 	public Color getNotVisible() {
 		return notVisible;
 	}
-	
+
+	public Image getFruit() {
+		return fruit;
+	}
+
+	public Image getSprite() {
+		return sprite;
+	}
+
+	public Image getTombstone() {
+		return tombstone;
+	}
+
+	public Image getBuilding1() {
+		return building1;
+	}
+
+	public Image getWood() {
+		return wood;
+	}
+
+	public Image getPanel() {
+		return panel;
+	}
 	
 }

@@ -3,12 +3,14 @@ package civilization.human;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import civilization.civilization.City;
 import civilization.civilization.building.BuildingType;
 import civilization.image.ImageManager;
 import civilization.map.Area;
+import civilization.map.MaterialType;
 
 public abstract class Human {
 	protected int id;
@@ -23,6 +25,7 @@ public abstract class Human {
 	protected int actionTimer;
 	protected HumanAction action;
 	protected City city;
+	protected java.util.Map<MaterialType, Integer> bag;
 	
 	private int liveTimer;
 	
@@ -42,6 +45,7 @@ public abstract class Human {
 		action = HumanAction.NONE;
 		city = City.getInstance();
 		liveTimer = 0;
+		bag = new HashMap<MaterialType, Integer>();
 	}
 	
 	public void drawAtPanel(Graphics g, int y) {
@@ -52,7 +56,7 @@ public abstract class Human {
 		}
 		g.drawString("#"+id, 10, y);
 		
-		g.drawString(action.toString(), 75, y);
+		g.drawString(action.toString(), 50, y);
 		
 		g.setColor(darkRed);
 		g.fillRect(10, y+3, 100, 5);
@@ -160,8 +164,11 @@ public abstract class Human {
 				action=HumanAction.NONE;
 			}
 			break;
-		case COLLECT:
+		case COLLECT_FOOD:
 			collectFood();
+			break;
+		case COLLECT_WOOD:
+			collectWood();
 			break;
 		case NONE:
 			areaAction();
@@ -173,12 +180,28 @@ public abstract class Human {
 	
 	public void areaAction(){
 		if(area.getFood()!=null && capacity<100){
-			action = HumanAction.COLLECT;
+			action = HumanAction.COLLECT_FOOD;
 			actionTimer=0;
 			return;
 		}
+		if(area.getWood()!=null && capacity<100){
+			action = HumanAction.COLLECT_WOOD;
+			actionTimer = 0;
+			return;
+		}
 		if(area.getBuildingType()!=null && area.getBuildingType().equals(BuildingType.WAREHOUSE)){
-			city.setFood(city.getFood()+capacity);
+			int food = city.getFood();
+			int wood = city.getWood();
+			if(bag.get(MaterialType.FOOD)!=null){
+				food+=bag.get(MaterialType.FOOD);
+				bag.remove(MaterialType.FOOD);
+			}
+			if(bag.get(MaterialType.WOOD)!=null){
+				wood+=bag.get(MaterialType.WOOD);
+				bag.remove(MaterialType.WOOD);
+			}
+			city.setFood(food);
+			city.setWood(wood);
 			capacity=0;
 			eat();
 			return;
@@ -186,6 +209,9 @@ public abstract class Human {
 	}
 	
 	public void collectFood(){
+	}
+	
+	public void collectWood(){
 	}
 	
 	private void live(){
@@ -224,5 +250,10 @@ public abstract class Human {
 				actionTimer++;
 			}
 		}
+	}
+	
+	public void drawTombstone(Graphics g){
+		g.drawImage(imageManager.getTombstone(), area.getX() - 25 / 2 +16, area.getY() - 25 / 2 +10,
+				area.getX() + 25 / 2 +16, area.getY() + 25 / 2 +10, 0, 0, 25, 25, null);
 	}
 }

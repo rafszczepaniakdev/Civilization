@@ -11,7 +11,7 @@ public class City {
 	}
 	
 	public City(){
-		wood=200;
+		wood=500;
 		food=200;
 		stone=200;
 	}
@@ -39,6 +39,5 @@ public class City {
 	public void setStone(int stone) {
 		this.stone = stone;
 	}
-	
 	
 }
